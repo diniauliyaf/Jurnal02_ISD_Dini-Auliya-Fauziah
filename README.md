@@ -1,0 +1,1 @@
+# Jurnal02_ISD_Dini-Auliya-Fauziah
