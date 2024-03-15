@@ -73,8 +73,10 @@ public class main {
 
                 case 5:
                     System.exit(0);
+                    break;
+                    default:
+                    System.out.println("imputan yang berlebihan");
             }
-            break;
         }
     }
 
