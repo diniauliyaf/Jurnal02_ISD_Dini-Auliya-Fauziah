@@ -1,101 +1,111 @@
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
-class MinHeap {
-    private PriorityQueue<ListPriority> heap;
+class Tugas implements Comparable<Tugas> {
+    private int deadline;
+    private String nama;
 
-    public MinHeap() {
-        heap = new PriorityQueue<>();
+    public Tugas(int deadline, String nama) {
+        this.deadline = deadline;
+        this.nama = nama;
     }
 
-    public void add(ListPriority lp) {
-        heap.add(lp);
+    public int getDeadline() {
+        return deadline;
     }
 
-    public ListPriority remove() {
-        return heap.poll();
+    public String getName() {
+        return nama;
     }
 
-    public int size() {
-        return heap.size();
+    @Override
+    public int compareTo(Tugas other) {
+        return Integer.compare(this.deadline, other.deadline);
     }
 
-    public ListPriority peek() {
-        return heap.peek();
-    }
-}
-
-class ListPriority implements Comparable<ListPriority> {
-    private int priority;
-    private String description;
-
-    public ListPriority(int aPriority, String aDescription) {
-        priority = aPriority;
-        description = aDescription;
-    }
-
+    @Override
     public String toString() {
-        return "Task terdekat yang harus diselesaikan: " + description;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public int compareTo(ListPriority other) {
-        return Integer.compare(this.priority, other.priority);
+        return nama + " (deadline: " + deadline + ")";
     }
 }
 
-public class HeapDemo {
+public class Main {
+    private PriorityQueue<Tugas> tasks;
+
+    public Main() {
+        tasks = new PriorityQueue<>();
+    }
+
+    public void addTask(int deadline, String nama) {
+        tasks.offer(new Tugas(deadline, nama));
+    }
+
+    public void showNextTask() {
+        if (tasks.isEmpty()) {
+            System.out.println("Tidak ada tugas yang harus diselesaikan.");
+        } else {
+            System.out.println("Task terdekat yang harus diselesaikan: " + tasks.peek().getName());
+        }
+    }
+
+    public void completeNextTask() {
+        if (tasks.isEmpty()) {
+            System.out.println("Tidak ada tugas yang harus diselesaikan.");
+        } else {
+            Tugas completedTask = tasks.poll();
+            System.out.println(completedTask.getName() + " selesai dilaksanakan.");
+            showNextTask();
+        }
+    }
+
+    public void clearAllTasks() {
+        tasks.clear();
+        System.out.println("Semua tugas telah dihapus.");
+    }
+
     public static void main(String[] args) {
-        MinHeap q = new MinHeap();
         Scanner scanner = new Scanner(System.in);
+        Main toDoList = new Main();
 
-        System.out.println("Masukkan tugas dalam format 'priority, description'. Ketik 'DONE' jika selesai:");
-
+        System.out.println("Masukkan tugas dengan format: deadline, nama tugas (ketik 'selesai' untuk mengakhiri input)");
+        
         while (true) {
-            System.out.print("Masukkan tugas: ");
             String input = scanner.nextLine();
-
-            switch (input.toLowerCase()) {
-                case "DONE":
-                    if (q.size() > 0) {
-                        ListPriority task = q.remove();
-                        System.out.println(task);
-                        System.out.println(task.getDescription() + " selesai dilaksanakan, berikutnya tugas: ");
-                        if (q.size() > 0) {
-                            ListPriority nextTask = q.peek();
-                            System.out.println(nextTask.getDescription());
-                        } else {
-                            System.out.println("Tidak ada tugas tersisa.");
-                        }
-                    } else {
-                        System.out.println("\nTidak ada tugas dalam antrian.");
-                    }
-                    scanner.close();
-                    return;
-                default:
-                    String[] parts = input.split(", ", 2);
-                    if (parts.length < 2) {
-                        System.out.println("Masukan tidak valid. Harap masukkan prioritas dan deskripsi.");
-                    } else {
-                        String priorityString = parts[0];
-                        String description = parts[1];
-
-                        try {
-                            int priority = Integer.parseInt(priorityString);
-                            q.add(new ListPriority(priority, description));
-                        } catch (NumberFormatException e) {
-                            System.out.println("Prioritas tidak valid. Harap masukkan prioritas numerik.");
-                        }
-                    }
-                    break;
+            if (input.equalsIgnoreCase("selesai")) {
+                break;
+            }
+            String[] parts = input.split(",\\s*");
+            if (parts.length == 2) {
+                try {
+                    int deadline = Integer.parseInt(parts[0].trim());
+                    String nama = parts[1].trim();
+                    toDoList.addTask(deadline, nama);
+                } catch (NumberFormatException e) {
+                    System.out.println("Input tidak valid.");
+                }
+            } else {
+                System.out.println("Input tidak valid.");
             }
         }
+
+        toDoList.showNextTask();
+
+        System.out.println("\nMasukkan perintah (selesai, hapus semua, lihat berikutnya, atau selesaikan tugas):");
+        while (true) {
+            String command = scanner.nextLine();
+            if (command.equalsIgnoreCase("selesai")) {
+                break;
+            } else if (command.equalsIgnoreCase("hapus semua")) {
+                toDoList.clearAllTasks();
+            } else if (command.equalsIgnoreCase("lihat berikutnya")) {
+                toDoList.showNextTask();
+            } else if (command.equalsIgnoreCase("done")) {
+                toDoList.completeNextTask();
+            } else {
+                System.out.println("Perintah tidak dikenal. Masukkan 'selesai', 'hapus semua', 'lihat berikutnya', atau 'selesaikan tugas'.");
+            }
+        }
+
+        scanner.close();
     }
 }
